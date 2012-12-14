@@ -1,7 +1,7 @@
 from linkfinder.linkfinder import LinkFinder
 from database.database import Database
 
-maxentries = 1
+maxentries = 10000
 
 def run():
 	database = Database()

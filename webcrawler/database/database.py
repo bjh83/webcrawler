@@ -20,6 +20,7 @@ class Database:
 	def update(self, url):
 		time = datetime.date.today().strftime('%Y-%m-%d')
 		self.cursor.execute("""UPDATE urls SET visited='""" + time + """' WHERE url=%s""", url)
+		self.database.commit()
 
 	def getSize(self):
 		self.cursor.execute("""SELECT COUNT(*) FROM urls""")
@@ -33,12 +34,13 @@ class Database:
 			varstring += '(%s), '
 			index += 1
 		varstring += '(%s)'
-		querystring = """INSERT INTO urls (url) VALUES %s""" % varstring
-		print querystring
+		querystring = """INSERT IGNORE INTO urls (url) VALUES %s""" % varstring
 		self.cursor.execute(querystring, newLinks)
+		self.database.commit()
 
 	def remove(self, url):
-		self.cursor.execute("""DELETE FROM urls WHERE url=?""", url)
+		self.cursor.execute("""DELETE FROM urls WHERE url=%s""", url)
+		self.database.commit()
 
 	def close(self):
 		self.cursor.close()
