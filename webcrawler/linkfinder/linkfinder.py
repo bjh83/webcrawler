@@ -1,4 +1,5 @@
 from parser import Parser
+from urlparse import urlparse
 import httplib
 
 class LinkFinder:
@@ -7,9 +8,9 @@ class LinkFinder:
 	response = None
 
 	def __init__(self, address):
-		self.address = address
-		self.connection = httplib.HTTPConnection(self.address, 80)
-		self.connection.request('GET', '')
+		self.address = urlparse(address)
+		self.connection = httplib.HTTPConnection(self.address.netloc, 80)
+		self.connection.request('GET', self.address.path)
 		self.response = self.connection.getresponse()
 
 	def isOkay(self):
@@ -19,7 +20,7 @@ class LinkFinder:
 		self.connection.close()
 
 	def getLinks(self):
-		parser = Parser(self.address)
+		parser = Parser(self.address.geturl())
 		parser.feed(self.response.read())
 		return parser.linklist
 
