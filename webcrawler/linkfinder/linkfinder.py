@@ -10,7 +10,7 @@ class LinkFinder:
 
 	def __init__(self, address):
 		self.address = urlparse(address)
-		self.connection = httplib.HTTPConnection(self.address.netloc, 80)
+		self.connection = httplib.HTTPConnection(self.address.netloc, 80, timeout=10)
 		self.connection.request('GET', self.address.path)
 		self.response = self.connection.getresponse()
 
@@ -27,9 +27,11 @@ class LinkFinder:
 		headers = dict(self.response.getheaders())
 		encoding = None
 		if 'content-type' in headers:
-			encoding = headers['content-type']
-			match = re.search(r'charset=(?P<encoding>.+)$', encoding)
-			encoding = match.group('encoding')
+			content_header = headers['content-type']
+			print encoding
+			match = re.search(r'charset=(?P<encoding>.+)$', content_header)
+			if match is not None:
+				encoding = match.group('encoding')
 		parser = Parser(self.address.geturl(), encoding)
 		parser.feed(self.response.read())
 		return parser.linklist
