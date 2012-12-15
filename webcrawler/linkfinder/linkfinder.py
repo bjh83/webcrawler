@@ -1,6 +1,7 @@
 from parser import Parser
 from urlparse import urlparse
 import httplib
+import re
 
 class LinkFinder:
 	address = ''
@@ -16,11 +17,20 @@ class LinkFinder:
 	def isOkay(self):
 		return self.response.status == 200
 
+	def reason(self):
+		return self.response.reason
+
 	def close(self):
 		self.connection.close()
 
 	def getLinks(self):
-		parser = Parser(self.address.geturl())
+		headers = dict(self.response.getheaders())
+		encoding = None
+		if 'content-type' in headers:
+			encoding = headers['content-type']
+			match = re.search(r'charset=(?P<encoding>.+)$', encoding)
+			encoding = match.group('encoding')
+		parser = Parser(self.address.geturl(), encoding)
 		parser.feed(self.response.read())
 		return parser.linklist
 

@@ -10,7 +10,7 @@ class Database:
 		self.cursor = self.database.cursor()
 
 	def getUnvisited(self):
-		self.cursor.execute("""SELECT url FROM urls WHERE visited IS NULL LIMIT 1""")
+		self.cursor.execute("""SELECT url FROM urls WHERE visited IS NULL ORDER BY discovered LIMIT 1""")
 		retval = self.cursor.fetchall()
 		if len(retval) < 1 or len(retval[0]) < 1:
 			return None
@@ -38,8 +38,8 @@ class Database:
 		self.cursor.execute(querystring, newLinks)
 		self.database.commit()
 
-	def remove(self, url):
-		self.cursor.execute("""DELETE FROM urls WHERE url=%s""", url)
+	def markBAD(self, url):
+		self.cursor.execute("""UPDATE urls set BAD=1 WHERE url=%s""", url)
 		self.database.commit()
 
 	def close(self):

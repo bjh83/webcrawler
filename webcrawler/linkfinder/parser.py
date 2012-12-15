@@ -7,16 +7,28 @@ import re
 class Parser(HTMLParser):
 	rootname = ''
 	linklist = []
+	encoding = None
 
-	def __init__(self, rootname):
+	def __init__(self, rootname, encoding):
 		HTMLParser.__init__(self)
 		self.rootname = rootname
+		self.encoding = encoding
 
 	def handle_starttag(self, tag, attrs):
 		if tag == 'a':
 			for attr in attrs:
 				if attr[0] == 'href':
 					clean(self.rootname, attr[1], self.linklist)
+	
+	def feed(self, data):
+		try:
+			if self.encoding is not None:
+				data = data.decode(self.encoding)
+			HTMLParser.feed(self, data)
+		except UnicodeDecodeError:
+			print 'BADSEED!'
+			print self.encoding
+			print self.rootname
 
 def clean(rootname, toclean, outlist):
 	urlob = urlsplit(toclean, scheme='http')
